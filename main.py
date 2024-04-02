@@ -9,9 +9,20 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.uix.textinput import TextInput
+from kivy.uix.scrollview import ScrollView
+from kivy.lang import Builder
 
 
 store = DictStore('store')
+Builder.load_string('''
+<ButtonAlignLeft>:
+    halign: 'left'
+    text_size: self.size
+''')
+
+
+class ButtonAlignLeft(Button):
+    pass
 
 
 class LoginWindow(Screen):
@@ -104,6 +115,55 @@ class ListWindow(Screen):
             size_hint_x=None,
         ))
         self.add_widget(header)
+        self.error = Label(
+            text='',
+            color=(1, 0, 0),
+            pos_hint={"center_x": 0.5, "center_y": 0.85},
+        )
+        self.add_widget(self.error)
+        self.get_reagents()
+
+    def get_reagents(self):
+        if not store.exists('token'):
+            return
+        UrlRequest(
+            "https://laboratory.sytes.net/api/reagents/",
+            req_headers={
+                "Authorization": f"Token {store.get('token')['value']}",
+                "Accept": "application/json",
+            },
+            method="GET",
+            on_success=self.get_reagents_success,
+            on_failure=self.get_reagents_failure,
+        )
+
+    def get_reagents_success(self, request, response):
+        scroll = ScrollView(
+            size_hint=(1, 0.85),
+            pos_hint={"center_x": 0.5, "center_y": 0.5},
+            do_scroll_x=False,
+            do_scroll_y=True,
+        )
+        reagents = BoxLayout(
+            size_hint_y=None,
+            orientation="vertical",
+        )
+        reagents.height = len(response) * 26
+        for reagent in response:
+            reagents.add_widget(
+                ButtonAlignLeft(
+                    text=f"{reagent['id']}. {reagent['name']}",
+                    font_size=16,
+                    padding=5,
+                    shorten=True,
+                    shorten_from='right',
+                )
+            )
+        scroll.add_widget(reagents)
+        self.add_widget(scroll)
+
+    def get_reagents_failure(self, request, response):
+        self.error.text = 'Произошла ошибка'
 
 
 class MainApp(App):
