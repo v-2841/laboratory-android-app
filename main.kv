@@ -29,6 +29,8 @@
             write_tab: False
             size_hint_y: None
             height: self.minimum_height
+            focus: True
+            on_text_validate: root.login()
         TextInput:
             id: password
             hint_text: 'Пароль'
@@ -38,6 +40,7 @@
             write_tab: False
             size_hint_y: None
             height: self.minimum_height
+            on_text_validate: root.login()
         Button:
             text: 'Вход'
             on_press: root.login()
@@ -60,25 +63,61 @@
     name: 'list'
     BoxLayout:
         orientation: 'vertical'
+        canvas.before:
+            Color:
+                rgba: (1, 1, 1, 0.9)
+            Rectangle:
+                pos: root.pos
+                size: root.size
         BoxLayout:
             orientation: 'horizontal'
             size_hint_y: None
             height: "60dp"
-            padding: 15
-            spacing: 15
-            Label:
-                text: 'Лаборатория'
-                font_size: 18
-                bold: True
-                color: (0.039, 0.729, 0.71)
-                size_hint: None, None
-                halign: 'left'
-                valign: 'middle'
+            padding: 10
+            spacing: 10
             Button:
-                text: 'Выход'
-                size_hint: None, None
-                height: "30dp"
-                width: "70dp"
-                pos_hint: {'center_x': 1, 'center_y': 0.5}
-        Label:
-            text: 'text'
+                size_hint_x: None
+                width: "40dp"
+                background_color: (0, 0, 0, 0)
+                on_press: root.open_website()
+                Image:
+                    source: 'img/logo.png'
+                    x: self.parent.x
+                    y: self.parent.y
+                    height: self.parent.height
+                    width: self.parent.width
+            TextInput:
+                id: search_field
+                hint_text: 'Поиск'
+                text: ''
+                background_color: (0, 0, 0, 0.1)
+                font_size: 18
+                size_hint_y: None
+                height: self.minimum_height
+                pos_hint: {'center_y': 0.5}
+                multiline: False
+                on_text_validate: root.search()
+            Button:
+                size_hint_x: None
+                width: "40dp"
+                background_color: (0, 0, 0, 0)
+                on_press: root.about()
+                Image:
+                    source: 'img/about.png'
+                    x: self.parent.x
+                    y: self.parent.y
+                    height: self.parent.height
+                    width: self.parent.width
+            Button:
+                size_hint_x: None
+                width: "40dp"
+                background_color: (0, 0, 0, 0)
+                on_press: root.logout()
+                Image:
+                    source: 'img/logout.png'
+                    x: self.parent.x
+                    y: self.parent.y
+                    height: self.parent.height
+                    width: self.parent.width
+        ScrollView:
+            id: list

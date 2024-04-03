@@ -1,4 +1,5 @@
 import json
+import webbrowser
 
 from kivy.app import App
 from kivy.lang import Builder
@@ -6,6 +7,10 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
 from kivy.network.urlrequest import UrlRequest
 from kivy.storage.dictstore import DictStore
+from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.uix.popup import Popup
+from kivy.uix.screenmanager import NoTransition
 
 
 store = DictStore('store')
@@ -39,13 +44,54 @@ class LoginWindow(Screen):
 
 
 class ListWindow(Screen):
-    pass
+    # def __init__(self, **kwargs):
+    #     super(ListWindow, self).__init__(**kwargs)
+    #     Clock.schedule_
+
+    def open_website(self, *args):
+        webbrowser.open('https://laboratory.sytes.net/')
+
+    def about(self, *args):
+        popup = Popup()
+        popup.title = 'О программе'
+        popup.size_hint = (None, None)
+        popup.size = (self.manager.width * 0.8, self.manager.height * 0.3)
+        popup.content = Label(
+            text=('Laboratory\nAuthor: Vitaliy Pavlov\n\n'
+                  + 'github:\nv-2841/laboratory-android-app'),
+            font_size=12,
+        )
+        popup.open()
+
+    def logout(self, *args):
+        store.delete('token')
+        self.manager.current = 'login'
+
+    def get_reagents(self):
+        self.reagents = []
+        if not store.exists('token'):
+            return
+        UrlRequest(
+            "https://laboratory.sytes.net/api/reagents/",
+            req_headers={
+                "Authorization": f"Token {store.get('token')['value']}",
+                "Accept": "application/json",
+            },
+            method="GET",
+            on_success=self.get_reagents_success,
+        )
+
+    def get_reagents_success(self, request, response):
+        self.reagents = response
+
+    def search(self, *args):
+        print(self.ids.search_field.text)
 
 
 class LaboratoryApp(App):
     def build(self):
         Builder.load_file('main.kv')
-        screen_manager = ScreenManager()
+        screen_manager = ScreenManager(transition=NoTransition())
         screen_manager.add_widget(LoginWindow(name='login'))
         screen_manager.add_widget(ListWindow(name='list'))
         if store.exists('token'):
