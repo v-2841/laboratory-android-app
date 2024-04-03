@@ -1,0 +1,84 @@
+#:kivy 2.3.0
+
+
+<LoginWindow>:
+    name: 'login'
+    BoxLayout:
+        canvas.before:
+            Color:
+                rgba: (1, 1, 1, 0.9)
+            Rectangle:
+                pos: root.pos
+                size: root.size
+        orientation: 'vertical'
+        size_hint: 0.75, 0.75
+        pos_hint: {'center_x': 0.5, 'center_y': 0.6}
+        spacing: 15
+        Label:
+            text: 'Laboratory'
+            font_size: 36
+            bold: True
+            color: (0.039, 0.729, 0.71)
+            size_hint_y: None
+            height: "100dp"
+        TextInput:
+            id: username
+            hint_text: 'Логин'
+            multiline: False
+            font_size: 18
+            write_tab: False
+            size_hint_y: None
+            height: self.minimum_height
+        TextInput:
+            id: password
+            hint_text: 'Пароль'
+            password: True
+            multiline: False
+            font_size: 18
+            write_tab: False
+            size_hint_y: None
+            height: self.minimum_height
+        Button:
+            text: 'Вход'
+            on_press: root.login()
+            size_hint: None, None
+            height: "30dp"
+            width: "70dp"
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            font_size: 18
+        Label:
+            id: error
+            text: ''
+            text_size: self.size
+            halign: 'left'
+            valign: 'top'
+            color: (1, 0, 0)
+            font_size: 16
+
+
+<ListWindow>:
+    name: 'list'
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: "60dp"
+            padding: 15
+            spacing: 15
+            Label:
+                text: 'Лаборатория'
+                font_size: 18
+                bold: True
+                color: (0.039, 0.729, 0.71)
+                size_hint: None, None
+                halign: 'left'
+                valign: 'middle'
+            Button:
+                text: 'Выход'
+                size_hint: None, None
+                height: "30dp"
+                width: "70dp"
+                pos_hint: {'center_x': 1, 'center_y': 0.5}
+        Label:
+            text: 'text'
