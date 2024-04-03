@@ -1,1 +1,1 @@
-kivy
+kivy[base]
