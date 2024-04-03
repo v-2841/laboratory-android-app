@@ -2,15 +2,14 @@ import json
 import webbrowser
 
 from kivy.app import App
-from kivy.lang import Builder
-from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
+from kivy.lang import Builder
 from kivy.network.urlrequest import UrlRequest
 from kivy.storage.dictstore import DictStore
 from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
-from kivy.uix.screenmanager import NoTransition
+from kivy.uix.screenmanager import NoTransition, Screen, ScreenManager
 
 
 store = DictStore('store')
@@ -44,9 +43,9 @@ class LoginWindow(Screen):
 
 
 class ListWindow(Screen):
-    # def __init__(self, **kwargs):
-    #     super(ListWindow, self).__init__(**kwargs)
-    #     Clock.schedule_
+    def __init__(self, **kwargs):
+        super(ListWindow, self).__init__(**kwargs)
+        self.get_reagents()
 
     def open_website(self, *args):
         webbrowser.open('https://laboratory.sytes.net/')
@@ -83,9 +82,25 @@ class ListWindow(Screen):
 
     def get_reagents_success(self, request, response):
         self.reagents = response
+        for reagent in self.reagents:
+            self.ids.reagents_list.add_widget(
+                Button(
+                    text=f"{reagent['id']}. {reagent['name']}",
+                )
+            )
 
     def search(self, *args):
-        print(self.ids.search_field.text)
+        if self.ids.search_field.text == '':
+            self.ids.fbutton.unbind(on_press=self.erase)
+            self.ids.fbutton.bind(on_press=self.about)
+            self.ids.fimage.source = 'img/about.png'
+            return
+        self.ids.fbutton.unbind(on_press=self.about)
+        self.ids.fbutton.bind(on_press=self.erase)
+        self.ids.fimage.source = 'img/eraser.png'
+
+    def erase(self, *args):
+        self.ids.search_field.text = ''
 
 
 class LaboratoryApp(App):
