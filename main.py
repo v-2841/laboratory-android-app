@@ -2,7 +2,6 @@ import json
 import webbrowser
 
 from kivy.app import App
-from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.network.urlrequest import UrlRequest
 from kivy.storage.dictstore import DictStore
@@ -36,6 +35,7 @@ class LoginWindow(Screen):
         store.put('token', value=response['auth_token'])
         self.ids.error.text = ''
         self.manager.current = 'list'
+        self.manager.get_screen('list').get_reagents()
 
     def login_failure(self, request, response):
         self.ids.error.text = 'Произошла ошибка'
@@ -82,29 +82,83 @@ class ListWindow(Screen):
 
     def get_reagents_success(self, request, response):
         self.reagents = response
-        for reagent in self.reagents:
-            self.ids.reagents_list.add_widget(
-                Button(
-                    text=f"{reagent['id']}. {reagent['name']}",
-                )
+        self.edit_reagent_list(self.reagents)
+
+    def edit_reagent_list(self, reagents, *args):
+        self.ids.reagents_list.clear_widgets()
+        for reagent in reagents:
+            self.ids[f'reagent_{reagent["id"]}'] = Button(
+                text=f"{reagent['id']}. {reagent['name']}",
+                size_hint=(None, None),
+                width=(self.manager.width
+                       - self.ids.reagents_list.padding[0] * 2),
+                height=(self.manager.height - self.ids.header.height) / 20,
+                shorten=True,
+                shorten_from='right',
+                padding=5,
+                text_size=(self.manager.width
+                           - self.ids.reagents_list.padding[0] * 2, None),
+                halign='left',
+                valign='center',
+                background_normal='',
+                background_color=(0.8, 0.8, 0.8, 1),
+                on_press=self.reagent_info,
             )
+            self.ids.reagents_list.add_widget(
+                self.ids[f'reagent_{reagent["id"]}'])
+
+    def reagent_info(self, *args):
+        reagent_id = int(args[0].text.split('.')[0])
+        popup = Popup(
+            size_hint=(None, None),
+            size=(self.manager.width * 0.8, self.manager.height * 0.3),
+        )
+        for reagent in self.reagents:
+            if reagent['id'] == reagent_id:
+                popup.title = reagent['name']
+                popup.content = Label(
+                    text=(self.reagent_info_text(reagent)),
+                    font_size=12,
+                )
+                popup.open()
 
     def search(self, *args):
         if self.ids.search_field.text == '':
             self.ids.fbutton.unbind(on_press=self.erase)
             self.ids.fbutton.bind(on_press=self.about)
             self.ids.fimage.source = 'img/about.png'
+            self.edit_reagent_list(self.reagents)
             return
         self.ids.fbutton.unbind(on_press=self.about)
         self.ids.fbutton.bind(on_press=self.erase)
         self.ids.fimage.source = 'img/eraser.png'
+        searched_reagents = []
+        for reagent in self.reagents:
+            if (self.ids.search_field.text.lower() in reagent['name'].lower()
+               or self.ids.search_field.text in str(reagent['id'])):
+                searched_reagents.append(reagent)
+        self.edit_reagent_list(searched_reagents)
 
     def erase(self, *args):
         self.ids.search_field.text = ''
 
+    def reagent_info_text(self, reagent):
+        return (
+            f"Индекс: {reagent['index']}\n"
+            + f"Марка: {reagent['grade'] if reagent['grade'] else '-'}\n"
+            + "Дата производства: "
+            + f"{self.date_format(reagent['manufacture_date'])}\n"
+            + f"Срок годности: {self.date_format(reagent['expiration_date'])}"
+        )
+
+    def date_format(self, date):
+        date = date.split('-')
+        return f'{date[2]}.{date[1]}.{date[0]} г.'
+
 
 class LaboratoryApp(App):
     def build(self):
+        self.icon = 'img/logo.png'
         Builder.load_file('main.kv')
         screen_manager = ScreenManager(transition=NoTransition())
         screen_manager.add_widget(LoginWindow(name='login'))
@@ -117,5 +171,4 @@ class LaboratoryApp(App):
 
 
 if __name__ == "__main__":
-    Window.size = (300, 620)
     LaboratoryApp().run()

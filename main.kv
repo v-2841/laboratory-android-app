@@ -70,6 +70,7 @@
                 pos: root.pos
                 size: root.size
         BoxLayout:
+            id: header
             orientation: 'horizontal'
             size_hint_y: None
             height: "60dp"
@@ -120,8 +121,13 @@
                     height: self.parent.height
                     width: self.parent.width
         ScrollView:
+            do_scroll_x: False
+            do_scroll_y: True
             BoxLayout:
                 orientation: 'vertical'
                 id: reagents_list
                 size_hint_y: None
                 height: self.minimum_height
+                spacing: 5
+                padding: 5
+
