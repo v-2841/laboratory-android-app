@@ -3,6 +3,7 @@ import webbrowser
 
 from kivy.app import App
 from kivy.lang import Builder
+from kivy.metrics import dp
 from kivy.network.urlrequest import UrlRequest
 from kivy.storage.dictstore import DictStore
 from kivy.uix.button import Button
@@ -16,6 +17,7 @@ store = DictStore('store')
 
 class LoginWindow(Screen):
     def login(self, *args):
+        self.ids.error.text = ''
         data = json.dumps({
             "username": self.ids.username.text,
             "password": self.ids.password.text
@@ -34,6 +36,7 @@ class LoginWindow(Screen):
     def login_success(self, request, response):
         store.put('token', value=response['auth_token'])
         self.ids.error.text = ''
+        self.ids.password.text = ''
         self.manager.current = 'list'
         self.manager.get_screen('list').get_reagents()
 
@@ -58,7 +61,7 @@ class ListWindow(Screen):
         popup.content = Label(
             text=('Laboratory\nAuthor: Vitaliy Pavlov\n\n'
                   + 'github:\nv-2841/laboratory-android-app'),
-            font_size=12,
+            font_size=dp(16),
         )
         popup.open()
 
@@ -82,12 +85,12 @@ class ListWindow(Screen):
 
     def get_reagents_success(self, request, response):
         self.reagents = response
-        self.edit_reagent_list(self.reagents)
+        self.edit_reagent_list(reagents=self.reagents)
 
-    def edit_reagent_list(self, reagents, *args):
+    def edit_reagent_list(self, reagents):
         self.ids.reagents_list.clear_widgets()
         for reagent in reagents:
-            self.ids[f'reagent_{reagent["id"]}'] = Button(
+            button = Button(
                 text=f"{reagent['id']}. {reagent['name']}",
                 size_hint=(None, None),
                 width=(self.manager.width
@@ -95,7 +98,7 @@ class ListWindow(Screen):
                 height=(self.manager.height - self.ids.header.height) / 20,
                 shorten=True,
                 shorten_from='right',
-                padding=5,
+                padding=dp(5),
                 text_size=(self.manager.width
                            - self.ids.reagents_list.padding[0] * 2, None),
                 halign='left',
@@ -103,9 +106,10 @@ class ListWindow(Screen):
                 background_normal='',
                 background_color=(0.8, 0.8, 0.8, 1),
                 on_press=self.reagent_info,
+                color=(0, 0, 0, 1),
+                font_size=dp(18),
             )
-            self.ids.reagents_list.add_widget(
-                self.ids[f'reagent_{reagent["id"]}'])
+            self.ids.reagents_list.add_widget(button)
 
     def reagent_info(self, *args):
         reagent_id = int(args[0].text.split('.')[0])
@@ -118,7 +122,7 @@ class ListWindow(Screen):
                 popup.title = reagent['name']
                 popup.content = Label(
                     text=(self.reagent_info_text(reagent)),
-                    font_size=12,
+                    font_size=dp(16),
                 )
                 popup.open()
 
@@ -152,6 +156,8 @@ class ListWindow(Screen):
         )
 
     def date_format(self, date):
+        if not date:
+            return '-'
         date = date.split('-')
         return f'{date[2]}.{date[1]}.{date[0]} г.'
 
