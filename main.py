@@ -17,6 +17,7 @@ store = DictStore('store')
 
 class LoginWindow(Screen):
     def login(self, *args):
+        self.ids.processing.text = 'Соединение с сервером...'
         self.ids.error.text = ''
         data = json.dumps({
             "username": self.ids.username.text,
@@ -31,17 +32,36 @@ class LoginWindow(Screen):
             method="POST",
             on_success=self.login_success,
             on_failure=self.login_failure,
+            on_error=self.login_error,
         )
 
     def login_success(self, request, response):
         store.put('token', value=response['auth_token'])
+        self.ids.processing.text = ''
         self.ids.error.text = ''
         self.ids.password.text = ''
         self.manager.current = 'list'
         self.manager.get_screen('list').get_reagents()
 
     def login_failure(self, request, response):
-        self.ids.error.text = 'Произошла ошибка'
+        self.ids.processing.text = ''
+        errors = ''
+        for field in response:
+            for error in response[field]:
+                if field == 'username':
+                    errors += f"Имя пользователя: {error}\n"
+                elif field == 'password':
+                    errors += f"Пароль: {error}\n"
+                elif field == 'non_field_errors':
+                    errors += f"{error}\n"
+                else:
+                    errors += f"{field}: {error}\n"
+        self.ids.error.text = errors
+        self.ids.password.text = ''
+
+    def login_error(self, request, error):
+        self.ids.processing.text = ''
+        self.ids.error.text = 'Не удалось подключиться к серверу'
         self.ids.password.text = ''
 
 
@@ -69,7 +89,7 @@ class ListWindow(Screen):
         store.delete('token')
         self.manager.current = 'login'
 
-    def get_reagents(self):
+    def get_reagents(self, *args):
         self.reagents = []
         if not store.exists('token'):
             return
@@ -81,6 +101,8 @@ class ListWindow(Screen):
             },
             method="GET",
             on_success=self.get_reagents_success,
+            on_failure=self.get_reagents_failure,
+            on_error=self.get_reagents_error,
         )
 
     def get_reagents_success(self, request, response):
@@ -168,6 +190,31 @@ class ListWindow(Screen):
             return '-'
         date = date.split('-')
         return f'{date[2]}.{date[1]}.{date[0]} г.'
+
+    def get_reagents_failure(self, request, response):
+        store.delete('token')
+        self.manager.current = 'login'
+        self.manager.get_screen('login').ids.error.text = str(response)
+
+    def get_reagents_error(self, request, error):
+        self.ids.reagents_list.clear_widgets()
+        error = Label(
+            text='Не удалось подключиться к серверу',
+            font_size=dp(16),
+            color=(1, 0, 0, 1),
+            size_hint=(1, None),
+        )
+        self.ids.reagents_list.add_widget(error)
+        button = Button(
+            text='Повторить попытку',
+            font_size=dp(18),
+            size_hint=(None, None),
+            width=dp(220),
+            height=dp(34),
+            pos_hint=({'center_x': 0.5}),
+            on_press=self.get_reagents,
+        )
+        self.ids.reagents_list.add_widget(button)
 
 
 class LaboratoryApp(App):

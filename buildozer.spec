@@ -21,20 +21,20 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 
 # (list) List of inclusions using pattern matching
-source.include_patterns = assets/*,img/*.png
+source.include_patterns = img/*.png
 
 # (list) Source files to exclude (leave empty to not exclude anything)
 #source.exclude_exts = spec
 
 # (list) List of directory to exclude (leave empty to not exclude anything)
-source.exclude_dirs = tests, bin, venv
+source.exclude_dirs = bin, venv, .buildozer
 
 # (list) List of exclusions using pattern matching
 # Do not prefix with './'
-#source.exclude_patterns = license,images/*/*.jpg
+source.exclude_patterns = LICENSE, store, requirements.txt, README.md, .gitignore
 
 # (str) Application versioning (method 1)
-version = 0.2.0
+version = 0.3.0
 
 # (str) Application versioning (method 2)
 # version.regex = __version__ = ['"](.*)['"]

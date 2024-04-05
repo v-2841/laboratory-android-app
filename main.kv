@@ -16,7 +16,7 @@
         spacing: "15dp"
         Label:
             text: 'Laboratory'
-            font_size: "36dp"
+            font_size: "48dp"
             bold: True
             color: (0.039, 0.729, 0.71)
             size_hint_y: None
@@ -25,7 +25,7 @@
             id: username
             hint_text: 'Логин'
             multiline: False
-            font_size: "18dp"
+            font_size: "24dp"
             write_tab: False
             size_hint_y: None
             height: self.minimum_height
@@ -35,7 +35,7 @@
             hint_text: 'Пароль'
             password: True
             multiline: False
-            font_size: "18dp"
+            font_size: "24dp"
             write_tab: False
             size_hint_y: None
             height: self.minimum_height
@@ -44,9 +44,27 @@
             text: 'Вход'
             on_press: root.login()
             size_hint: None, None
-            height: "30dp"
-            width: "70dp"
+            height: "34dp"
+            width: "84dp"
             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            font_size: "24dp"
+        Button:
+            text: 'Очистить пароль'
+            on_press: root.ids.password.text = ''
+            size_hint: None, None
+            height: "34dp"
+            width: "220dp"
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            font_size: "24dp"
+        Label:
+            id: processing
+            text: ''
+            text_size: self.size
+            halign: 'center'
+            valign: 'top'
+            size_hint: 1, None
+            size: self.texture_size
+            color: (0, 1, 0)
             font_size: "18dp"
         Label:
             id: error
@@ -55,7 +73,7 @@
             halign: 'left'
             valign: 'top'
             color: (1, 0, 0)
-            font_size: "16dp"
+            font_size: "18dp"
 
 
 <ListWindow>:
