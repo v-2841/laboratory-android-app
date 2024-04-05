@@ -85,22 +85,25 @@ class ListWindow(Screen):
 
     def get_reagents_success(self, request, response):
         self.reagents = response
-        self.edit_reagent_list(reagents=self.reagents)
+        self.create_buttons(reagents=self.reagents)
+        self.display_buttons(self.all_reagents_buttons)
 
-    def edit_reagent_list(self, reagents):
-        self.ids.reagents_list.clear_widgets()
+    def create_buttons(self, reagents):
+        self.all_reagents_buttons = []
+        width = self.manager.width - self.ids.reagents_list.padding[0] * 2
+        height = (self.manager.height - self.ids.header.height) / 20
+        text_size_x = (self.manager.width
+                       - self.ids.reagents_list.padding[0] * 2)
         for reagent in reagents:
-            button = Button(
+            self.all_reagents_buttons.append(Button(
                 text=f"{reagent['id']}. {reagent['name']}",
                 size_hint=(None, None),
-                width=(self.manager.width
-                       - self.ids.reagents_list.padding[0] * 2),
-                height=(self.manager.height - self.ids.header.height) / 20,
+                width=width,
+                height=height,
                 shorten=True,
                 shorten_from='right',
                 padding=dp(5),
-                text_size=(self.manager.width
-                           - self.ids.reagents_list.padding[0] * 2, None),
+                text_size=(text_size_x, None),
                 halign='left',
                 valign='center',
                 background_normal='',
@@ -108,7 +111,11 @@ class ListWindow(Screen):
                 on_press=self.reagent_info,
                 color=(0, 0, 0, 1),
                 font_size=dp(18),
-            )
+            ))
+
+    def display_buttons(self, buttons):
+        self.ids.reagents_list.clear_widgets()
+        for button in buttons:
             self.ids.reagents_list.add_widget(button)
 
     def reagent_info(self, *args):
@@ -131,17 +138,18 @@ class ListWindow(Screen):
             self.ids.fbutton.unbind(on_press=self.erase)
             self.ids.fbutton.bind(on_press=self.about)
             self.ids.fimage.source = 'img/about.png'
-            self.edit_reagent_list(self.reagents)
+            if not hasattr(self, 'all_reagents_buttons'):
+                return
+            self.display_buttons(self.all_reagents_buttons)
             return
         self.ids.fbutton.unbind(on_press=self.about)
         self.ids.fbutton.bind(on_press=self.erase)
         self.ids.fimage.source = 'img/eraser.png'
         searched_reagents = []
-        for reagent in self.reagents:
-            if (self.ids.search_field.text.lower() in reagent['name'].lower()
-               or self.ids.search_field.text in str(reagent['id'])):
-                searched_reagents.append(reagent)
-        self.edit_reagent_list(searched_reagents)
+        for button in self.all_reagents_buttons:
+            if self.ids.search_field.text.lower() in button.text.lower():
+                searched_reagents.append(button)
+        self.display_buttons(searched_reagents)
 
     def erase(self, *args):
         self.ids.search_field.text = ''
