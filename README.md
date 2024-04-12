@@ -1,5 +1,5 @@
 # Laboratory App
-This is side project for [Laboratory](https://github.com/v-2841/laboratory)
+This is a side project for [Laboratory](https://github.com/v-2841/laboratory)
 
 It is an Android app for finding reagents. The app is built using Kivy, a Python-based framework for building mobile apps
 
