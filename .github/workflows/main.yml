@@ -14,7 +14,6 @@ jobs:
         uses: ArtemSBulgakov/buildozer-action@v1
         id: buildozer
         with:
-          command: buildozer android debug
           workdir: .
           buildozer_version: 1.2.0
 
