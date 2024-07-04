@@ -26,7 +26,7 @@ class LoginWindow(Screen):
         headers = {"Content-Type": "application/json",
                    "Accept": "application/json"}
         UrlRequest(
-            "https://laboratory.sytes.net/api/auth/token/login",
+            "https://laboratory.pavva.org/api/auth/token/login",
             req_body=data,
             req_headers=headers,
             method="POST",
@@ -71,7 +71,7 @@ class ListWindow(Screen):
         self.get_reagents()
 
     def open_website(self, *args):
-        webbrowser.open('https://laboratory.sytes.net/')
+        webbrowser.open('https://laboratory.pavva.org/')
 
     def about(self, *args):
         popup = Popup()
@@ -94,7 +94,7 @@ class ListWindow(Screen):
         if not store.exists('token'):
             return
         UrlRequest(
-            "https://laboratory.sytes.net/api/reagents/",
+            "https://laboratory.pavva.org/api/reagents/",
             req_headers={
                 "Authorization": f"Token {store.get('token')['value']}",
                 "Accept": "application/json",
